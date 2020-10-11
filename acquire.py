@@ -32,7 +32,8 @@ def cluster_zillow_data():
                 left join storytype using (storytypeid)
                 left join typeconstructiontype using (typeconstructiontypeid)
                 left join unique_properties using (parcelid)
-                where latitude is not null and longitude is not null;
+                where latitude is not null and longitude is not null
+                AND propertylandusetypeid IN ('260', '261', '262', '263', '264', '266', '268', '273', '274', '275', '276', '279');
                 '''
     df = pd.read_sql(sql_query, get_connection('zillow'))
     df.to_csv('zillow_cluster_df.csv')
