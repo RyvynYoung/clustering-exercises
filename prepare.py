@@ -48,11 +48,18 @@ def prep_mall_data(df):
     Takes the acquired mall data, does data prep, and returns
     train, test, and validate data splits.
     '''
-    df['is_female'] = (df.gender == 'Female').astype('int')
-    # train_and_validate, test = train_test_split(df, test_size=.15, random_state=123)
-    # train, validate = train_test_split(train_and_validate, test_size=.15, random_state=123)
-    # return train, test, validate  
-    return df
+    # use the pd.get_dummies
+    df_dummies = pd.get_dummies(df[['gender']], drop_first=True)
+    df = pd.concat([df, df_dummies], axis=1)
+    
+    # Drop the redunant columns
+    df = df.drop(columns=['customer_id', 'gender'])
+    
+    train_and_validate, test = train_test_split(df, test_size=.15, random_state=123)
+    train, validate = train_test_split(train_and_validate, test_size=.15, random_state=123)
+    return train, test, validate  
+    # return df
+
 
 def get_upper_outliers(s, k):
     '''
@@ -72,12 +79,38 @@ def add_upper_outlier_columns(df, k):
     Add a column with the suffix _outliers for all the numeric columns
     in the given dataframe.
     '''
-    outlier_cols = {col + '_outliers': get_upper_outliers(df[col], k) for col in df.select_dtypes(np.number)}
+    outlier_cols = {col + '_outliers': get_upper_outliers(df[col], k) for col in df.select_dtypes('number')}
     return df.assign(**outlier_cols)
 
-    for col in df.select_dtypes(np.number):
+    for col in df.select_dtypes('number'):
         df[col + '_outliers'] = get_upper_outliers(df[col], k)
 
+    return df
+
+def get_lower_outliers(s, k):
+    '''
+    Given a series and a cutoff value, k, returns the upper outliers for the
+    series.
+
+    The values returned will be either 0 (if the point is not an outlier), or a
+    number that indicates how far away from the upper bound the observation is.
+    '''
+    q1, q3 = s.quantile([.25, .75])
+    iqr = q3 - q1
+    lower_bound = q1 + k * iqr
+    return s.apply(lambda x: max([x - lower_bound, 0]))
+
+def add_lower_outlier_columns(df, k):
+    '''
+    Add a column with the suffix _outliers for all the numeric columns
+    in the given dataframe.
+    '''
+    outlier_cols = {col + '_outliers': get_lower_outliers(df[col], k) for col in df.select_dtypes('number')}
+    return df.assign(**outlier_cols)
+
+    for col in df.select_dtypes('number'):
+        df[col + '_outliers'] = get_lower_outliers(df[col], k)
+    
     return df
 
 
@@ -86,9 +119,7 @@ def add_upper_outlier_columns(df, k):
 
 
 
-
-
-#################### Prepare ##################
+#################### Prepare Zillow Regression Data ##################
 
 def wrangle_zillow(path):
     '''This function makes all necessary changes to the dataframe for exploration and modeling'''
