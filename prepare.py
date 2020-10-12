@@ -7,7 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTransformer, RobustScaler, MinMaxScaler
 
-#Clustering Exercises functions
+######## #Clustering Exercises functions ##########
+##### Zillow Clustering ########
 def remove_columns(df, cols_to_remove):  
     '''
     Remove columns passed to function
@@ -40,6 +41,19 @@ def data_prep(df, cols_to_remove=[], prop_required_column=.5, prop_required_row=
     df = handle_missing_values(df, prop_required_column, prop_required_row)
     return df
 
+
+####### Mall Customers #######
+def prep_mall_data(df):
+    '''
+    Takes the acquired mall data, does data prep, and returns
+    train, test, and validate data splits.
+    '''
+    df['is_female'] = (df.gender == 'Female').astype('int')
+    # train_and_validate, test = train_test_split(df, test_size=.15, random_state=123)
+    # train, validate = train_test_split(train_and_validate, test_size=.15, random_state=123)
+    # return train, test, validate  
+    return df
+
 def get_upper_outliers(s, k):
     '''
     Given a series and a cutoff value, k, returns the upper outliers for the
@@ -58,11 +72,10 @@ def add_upper_outlier_columns(df, k):
     Add a column with the suffix _outliers for all the numeric columns
     in the given dataframe.
     '''
-    # outlier_cols = {col + '_outliers': get_upper_outliers(df[col], k)
-    #                 for col in df.select_dtypes('number')}
-    # return df.assign(**outlier_cols)
+    outlier_cols = {col + '_outliers': get_upper_outliers(df[col], k) for col in df.select_dtypes(np.number)}
+    return df.assign(**outlier_cols)
 
-    for col in df.select_dtypes('number'):
+    for col in df.select_dtypes(np.number):
         df[col + '_outliers'] = get_upper_outliers(df[col], k)
 
     return df
