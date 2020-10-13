@@ -71,6 +71,7 @@ def df_summary(df):
     nulls_by_col = get_missing_cols(df)
     print(nulls_by_row)
     print(nulls_by_col)
-    print(df.hist(figsize=(24, 10), bins=20))
+    graphs = df.hist(figsize=(24, 10), bins=20)
+    print(plt.tight_layout(), graphs, plt.show())
     return df
 

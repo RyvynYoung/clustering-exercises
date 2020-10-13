@@ -79,25 +79,25 @@ def add_upper_outlier_columns(df, k):
     Add a column with the suffix _outliers for all the numeric columns
     in the given dataframe.
     '''
-    outlier_cols = {col + '_outliers': get_upper_outliers(df[col], k) for col in df.select_dtypes('number')}
+    outlier_cols = {col + '_up_outliers': get_upper_outliers(df[col], k) for col in df.select_dtypes('number')}
     return df.assign(**outlier_cols)
 
     for col in df.select_dtypes('number'):
-        df[col + '_outliers'] = get_upper_outliers(df[col], k)
+        df[col + '_up_outliers'] = get_upper_outliers(df[col], k)
 
     return df
 
 def get_lower_outliers(s, k):
     '''
-    Given a series and a cutoff value, k, returns the upper outliers for the
+    Given a series and a cutoff value, k, returns the lower outliers for the
     series.
 
     The values returned will be either 0 (if the point is not an outlier), or a
-    number that indicates how far away from the upper bound the observation is.
+    number that indicates how far away from the lower bound the observation is.
     '''
     q1, q3 = s.quantile([.25, .75])
     iqr = q3 - q1
-    lower_bound = q1 + k * iqr
+    lower_bound = q1 - k * iqr
     return s.apply(lambda x: max([x - lower_bound, 0]))
 
 def add_lower_outlier_columns(df, k):
@@ -105,15 +105,22 @@ def add_lower_outlier_columns(df, k):
     Add a column with the suffix _outliers for all the numeric columns
     in the given dataframe.
     '''
-    outlier_cols = {col + '_outliers': get_lower_outliers(df[col], k) for col in df.select_dtypes('number')}
+    outlier_cols = {col + '_low_outliers': get_lower_outliers(df[col], k) for col in df.select_dtypes('number')}
     return df.assign(**outlier_cols)
 
     for col in df.select_dtypes('number'):
-        df[col + '_outliers'] = get_lower_outliers(df[col], k)
+        df[col + '_low_outliers'] = get_lower_outliers(df[col], k)
     
     return df
 
+####### example to call outliers functions ####
+# malldf = prepare.add_upper_outlier_columns(df, k=1.5)  
 
+# outlier_cols = [col for col in malldf if col.endswith('_outliers')]
+# for col in outlier_cols:
+#     print('~~~\n' + col)
+#     data = malldf[col][malldf[col] > 0]
+#     print(data.describe())
 
 
 
