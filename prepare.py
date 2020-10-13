@@ -31,6 +31,9 @@ def handle_missing_values(df, prop_required_column = .5, prop_required_row = .5)
     df.dropna(axis=0, thresh=threshold, inplace=True)
     return df
 
+# note: Anthony has a different approach to handle missing values
+
+
 def data_prep(df, cols_to_remove=[], prop_required_column=.5, prop_required_row=.5):
     '''
     Prep data by removing specificed columns as well as columns as rows with designated proportion of missing values.

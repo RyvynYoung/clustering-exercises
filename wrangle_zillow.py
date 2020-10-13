@@ -30,10 +30,8 @@ def wrangle_zillow_cluster():
     df.unitcnt = df.unitcnt.fillna(value=1)
     # drop remaining 190 (out of 71,600) with null vaules
     df = df.dropna()
-    
-    # print summary info
-    df = summarize.df_summary(df)
-    
+    # NOTE: if any nulls will be filled with median or mode, or imputed, make sure to split data BEFORE finding median or mode or imputing
+        
     # remove outliers above 50th percentile of upperbound and drop
     df = prepare.add_upper_outlier_columns(df, k=1.5)
     zup_drop_index = df[df.taxamount_up_outliers > 5365].index
@@ -47,9 +45,19 @@ def wrangle_zillow_cluster():
     # drop rows not needed for explore or modeling
     cols_to_remove3 = [col for col in df if col.endswith('_outliers')]
     df = prepare.remove_columns(df, cols_to_remove3)
-    cols_to_remove4 = ['null_count', 'pct_null']
-    df = prepare.remove_columns(df, cols_to_remove4)
-    # (new shape = 51,735, 22)
 
-    # df is now ready to split and scale
-    return df
+    
+    # split dataset
+    train_validate, test = train_test_split(df, test_size = .2, random_state = 123)
+    train, validate = train_test_split(train_validate, test_size = .3, random_state = 123)
+    print(train.shape, validate.shape, test.shape)
+    
+    # print train summary info
+    train = summarize.df_summary(train)
+
+    cols_to_remove4 = ['null_count', 'pct_null']
+    train = prepare.remove_columns(train, cols_to_remove4)
+    # (full df shape = 51,735, 22)
+    
+    # df is now ready to scale
+    return train, validate, test
