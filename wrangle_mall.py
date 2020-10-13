@@ -48,9 +48,8 @@ def wrangle_mall_data():
     and splits the data into train, validate, and test datasets
     """
     df = acquire.get_mall_data()
-    #df = prepare.prep_mall_data(df)
+    train, test, validate = prepare.prep_mall_data(df)
     #train_and_validate, test = train_test_split(df, test_size=.15, random_state=123)
     #train, validate = train_test_split(train_and_validate, test_size=.15, random_state=123)
-    return df
-    #return train, validate, test
-    #return scale_mall(train, validate, test)
+    # return train, test, validate
+    return scale_mall(train, validate, test)
