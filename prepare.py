@@ -126,6 +126,27 @@ def add_lower_outlier_columns(df, k):
 #     print(data.describe())
 
 
+# prep the iris data
+def split_iris_dataset(df):
+    train_validate, test = train_test_split(df, test_size=.2, random_state=123, stratify=df.species)
+    train, validate = train_test_split(train_validate, test_size=.3, random_state=123, stratify=train_validate.species)
+    return train, validate, test
+
+def prep_iris_data(df):
+    # Drop the species_id and measurement_id columns
+    df = df.drop(columns=['species_id'])
+    
+    # Rename the species_name column to just species
+    df = df.rename(columns={'species_name': 'species'})
+    
+    # encode the species column
+    df_dummies = pd.get_dummies(df[['species']], drop_first=True)
+    df = pd.concat([df, df_dummies], axis=1)
+    
+    # split the data
+    train, validate, test = split_iris_dataset(df)
+    
+    return train, validate, test
 
 
 
