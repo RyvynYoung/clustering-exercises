@@ -68,7 +68,7 @@ def wrangle_zillow_cluster():
 
 
 
-    def add_scaled_columns(train, validate, test, scaler, columns_to_scale):
+def add_scaled_columns(train, validate, test, scaler, columns_to_scale):
     """This function scales the Telco2yr data"""
     new_column_names = [c + '_scaled' for c in columns_to_scale]
     scaler.fit(train[columns_to_scale])
